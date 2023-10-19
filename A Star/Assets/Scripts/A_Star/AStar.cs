@@ -1,18 +1,18 @@
-using System.Collections;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public static class AStar 
+public static class AStar
 {
-    public static List<Node> Path (Node startNode, Node endNode)
+    public static List<Node> Path(Node startNode, Node endNode)
     {
         List<Node> openList = new List<Node>();
         List<Node> closedList = new List<Node>();
         startNode.gCost = 0;
         startNode.hCost = GetDistance(startNode, endNode);
         openList.Add(startNode);
-        
-        while(openList.Count > 0)
+
+        while (openList.Count > 0)
         {
             Node currentNode = openList[0];
             //get lowest f cost node
@@ -27,13 +27,13 @@ public static class AStar
             openList.Remove(currentNode);
             closedList.Add(currentNode);
 
-            if(currentNode == endNode)
+            if (currentNode == endNode)
             {
                 break;
             }
 
-            List<Node> adjacentNodes = AdjacentNodes(currentNode, endNode, openList, closedList);   
-            foreach(Node node in adjacentNodes)
+            List<Node> adjacentNodes = AdjacentNodes(currentNode, endNode, openList, closedList);
+            foreach (Node node in adjacentNodes)
             {
                 openList.Add(node);
             }
@@ -47,13 +47,15 @@ public static class AStar
         Node node = endNode;
         List<Node> path = new List<Node>();
 
-        while(node.parent != null)
+        while (node.parent != null)
         {
             path.Add(node);
             node = node.parent;
         }
+
         //add start node back after loop finishes
         path.Add(node);
+
         return path;
     }
     static List<Node> AdjacentNodes(Node currentNode, Node endNode, List<Node> openList, List<Node> closedList)
@@ -71,7 +73,7 @@ public static class AStar
             }
         }
 
-        foreach(Node node in adjacentNodes)
+        foreach (Node node in adjacentNodes)
         {
             //if node has already been added, skip it 
             if (closedList.Contains(node))
@@ -107,8 +109,8 @@ public static class AStar
 
         if (dstX > dstY)
         {
-            return (int) (14 * dstY + 10 * (dstX - dstY));
+            return (int)(14 * dstY + 10 * (dstX - dstY));
         }
-        return (int) (14 * dstX + 10 * (dstY - dstX));
+        return (int)(14 * dstX + 10 * (dstY - dstX));
     }
 }
