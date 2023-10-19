@@ -2,27 +2,23 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class AStar 
+public static class AStar 
 {
-    List<Node> openList = new List<Node>();
-    List<Node> closedList = new List<Node>();
-    Node currentNode;
-    Node endNode; 
-
-    public AStar (Node startNode, Node _endNode)
+    public static List<Node> Path (Node startNode, Node endNode)
     {
-        openList = new List<Node>();
-        closedList = new List<Node>();
+        List<Node> openList = new List<Node>();
+        List<Node> closedList = new List<Node>();
+        startNode.gCost = 0;
+        startNode.hCost = GetDistance(startNode, endNode);
         openList.Add(startNode);
-        endNode = _endNode;
         
         while(openList.Count > 0)
         {
-            currentNode = openList[0];
+            Node currentNode = openList[0];
             //get lowest f cost node
             for (int i = 0; i < openList.Count; i++)
             {
-                if (openList[i].fCost < currentNode.fCost || openList[i].fCost == currentNode.fCost && openList[i].hCost < currentNode.hCost)
+                if (openList[i].fCost < currentNode.fCost || (openList[i].fCost == currentNode.fCost && openList[i].hCost < currentNode.hCost))
                 {
                     currentNode = openList[i];
                 }
@@ -33,26 +29,43 @@ public class AStar
 
             if(currentNode == endNode)
             {
-                return;
+                break;
             }
 
-            AdjacentNodes();            
+            List<Node> adjacentNodes = AdjacentNodes(currentNode, endNode, openList, closedList);   
+            foreach(Node node in adjacentNodes)
+            {
+                openList.Add(node);
+            }
         }
 
+        return GetPath(endNode);
+
     }
-    public List<Node> GetPath()
+    public static List<Node> GetPath(Node endNode)
     {
-        return closedList;
+        Node node = endNode;
+        List<Node> path = new List<Node>();
+
+        while(node.parent != null)
+        {
+            path.Add(node);
+            node = node.parent;
+        }
+        //add start node back after loop finishes
+        path.Add(node);
+        return path;
     }
-    void AdjacentNodes()
+    static List<Node> AdjacentNodes(Node currentNode, Node endNode, List<Node> openList, List<Node> closedList)
     {
-        Collider[] hit = Physics.OverlapBox(currentNode.transform.position, new Vector3(6, 0, 6));
+        Collider[] hit = Physics.OverlapBox(currentNode.transform.position, new Vector3(7, 0, 7));
         List<Node> adjacentNodes = new List<Node>();
+        List<Node> nodesToAdd = new List<Node>();
 
         //get reference to all adjacent nodes
         foreach (Collider col in hit)
         {
-            if (col.gameObject.GetComponent<Node>().walkable)
+            if (col.gameObject.GetComponent<Node>())
             {
                 adjacentNodes.Add(col.gameObject.GetComponent<Node>());
             }
@@ -60,45 +73,42 @@ public class AStar
 
         foreach(Node node in adjacentNodes)
         {
-            //if node isn't walkable or has already been added, skip it 
-            if (closedList.Contains(node) || !node.walkable)
+            //if node has already been added, skip it 
+            if (closedList.Contains(node))
             {
-                if(node == endNode)
-                {
-                    return;
-                }
                 continue;
             }
-            else
-            {
-                int newCost = currentNode.gCost + GetDistance(currentNode, node);
-                if (newCost < node.gCost || !openList.Contains(node))
-                {
-                    node.gCost = newCost;
-                    node.hCost = GetDistance(node, endNode);
-                    node.parent = currentNode;
 
-                    //IF adjacent_cell is not in OPEN_LIST
-                    //ADD adjacent_cell to OPEN_LIST 
-                    if (!openList.Contains(node))
-                    {
-                        openList.Add(node);
-                    }
+            int newCost = currentNode.gCost + GetDistance(currentNode, node);
+            if (newCost < node.gCost || !openList.Contains(node))
+            {
+                //cost to move from current node to node this node
+                node.gCost = newCost;
+                //cost to move from this node to end node
+                node.hCost = GetDistance(node, endNode);
+                node.parent = currentNode;
+
+                //IF adjacent_cell is not in OPEN_LIST
+                //ADD adjacent_cell to OPEN_LIST 
+                if (!openList.Contains(node))
+                {
+                    nodesToAdd.Add(node);
                 }
             }
         }
+
+        return nodesToAdd;
     }
 
-    int GetDistance(Node nodeA, Node nodeB)
+    static int GetDistance(Node nodeA, Node nodeB)
     {
-        int dstX = (int) Mathf.Abs(nodeA.transform.position.x - nodeB.transform.position.x);
-        int dstY = (int) Mathf.Abs(nodeA.transform.position.y - nodeB.transform.position.y);
+        float dstX = Mathf.Abs(nodeA.transform.position.x - nodeB.transform.position.x);
+        float dstY = Mathf.Abs(nodeA.transform.position.z - nodeB.transform.position.z);
 
-        if(dstX > dstY)
+        if (dstX > dstY)
         {
-            return 14 * dstY + 10 * (dstX - dstY);
+            return (int) (14 * dstY + 10 * (dstX - dstY));
         }
-        return 14 * dstX + 10 * (dstY - dstX);
-
+        return (int) (14 * dstX + 10 * (dstY - dstX));
     }
 }
