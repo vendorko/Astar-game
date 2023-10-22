@@ -5,6 +5,7 @@ using UnityEngine;
 
 public class BattleManager : MonoBehaviour
 {
+    [SerializeField] List<GameObject> tiles = new List<GameObject>();
     public static BattleManager instance;
     LineRenderer line;
 
@@ -65,5 +66,16 @@ public class BattleManager : MonoBehaviour
         selectedUnit = null;
         current = null;
         line.positionCount = 0;
+
+        foreach (GameObject tile in tiles)
+        {
+            if (tile.GetComponent<Node>())
+            {
+                Node node = tile.GetComponent<Node>();
+                node.gCost = 0;
+                node.hCost = 0;
+            }
+        }
+
     }
 }
