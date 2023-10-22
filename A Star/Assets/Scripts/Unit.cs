@@ -34,8 +34,9 @@ public class Unit : MonoBehaviour
             }
             yield return new WaitForSeconds(.1f);
         }
-        AssignCurrentPosition();
+        yield return new WaitForSeconds(1f);
         BattleManager.instance.Reset();
+        AssignCurrentPosition();
     }
 
     public void AssignCurrentPosition()

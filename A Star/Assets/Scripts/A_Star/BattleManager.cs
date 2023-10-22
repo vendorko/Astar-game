@@ -74,6 +74,7 @@ public class BattleManager : MonoBehaviour
                 Node node = tile.GetComponent<Node>();
                 node.gCost = 0;
                 node.hCost = 0;
+                node.parent = null;
             }
         }
 

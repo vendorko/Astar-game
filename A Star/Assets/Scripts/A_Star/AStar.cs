@@ -49,7 +49,6 @@ public static class AStar
 
         while (node.parent != null)
         {
-            Debug.Log(node);
             path.Add(node);
             node = node.parent;
         }
