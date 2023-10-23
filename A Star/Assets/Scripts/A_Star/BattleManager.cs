@@ -5,6 +5,7 @@ using UnityEngine;
 
 public class BattleManager : MonoBehaviour
 {
+    [SerializeField] Transform background;
     [SerializeField] List<GameObject> tiles = new List<GameObject>();
     [SerializeField] int moveRange = 1;
     public static BattleManager instance;
@@ -21,6 +22,15 @@ public class BattleManager : MonoBehaviour
             instance = this;
         }
         line = transform.GetChild(0).GetComponent<LineRenderer>();
+        PopulateTiles();
+    }
+
+    void PopulateTiles()
+    {
+        foreach(Transform child in background)
+        {
+            tiles.Add(child.gameObject);
+        }
     }
 
     void Update()
