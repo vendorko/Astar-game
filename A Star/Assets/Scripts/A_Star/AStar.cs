@@ -102,7 +102,7 @@ public static class AStar
         return nodesToAdd;
     }
 
-    static int GetDistance(Node nodeA, Node nodeB)
+    public static int GetDistance(Node nodeA, Node nodeB)
     {
         float dstX = Mathf.Abs(nodeA.transform.position.x - nodeB.transform.position.x);
         float dstY = Mathf.Abs(nodeA.transform.position.z - nodeB.transform.position.z);

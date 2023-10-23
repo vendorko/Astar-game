@@ -85,6 +85,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7320fbe382b710043bdeeb76afb28638, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  highlightMat: {fileID: 2100000, guid: 090aad0e4a6a7ea4e85dcf0ee83ebf0d, type: 2}
+  neutralMat: {fileID: 2100000, guid: c255c1a3b9e05e542b09b84a4a4af209, type: 2}
   walkable: 1
   parent: {fileID: 0}
   hCost: 0

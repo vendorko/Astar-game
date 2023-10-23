@@ -6,8 +6,11 @@ using UnityEngine;
 public class BattleManager : MonoBehaviour
 {
     [SerializeField] List<GameObject> tiles = new List<GameObject>();
+    [SerializeField] int moveRange = 1;
     public static BattleManager instance;
     LineRenderer line;
+
+    List<Node> nodesInRange = new List<Node>();
 
     public Node current;
     Unit selectedUnit;
@@ -22,10 +25,18 @@ public class BattleManager : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetMouseButtonDown(0) && selectedUnit != null && current != null)
+        if (Input.GetMouseButtonDown(0) && selectedUnit != null && current != null && nodesInRange.Contains(current))
         {
-            selectedUnit.MoveUnit(AStar.Path(selectedUnit.currentPosition, current));
-            Reset();
+            if(selectedUnit != current)
+            {
+                selectedUnit.MoveUnit(AStar.Path(selectedUnit.currentPosition, current));
+                Reset();
+            }
+            else
+            {
+                selectedUnit = null;
+                Reset();
+            }
         }
 
         RaycastHit hit;
@@ -34,9 +45,10 @@ public class BattleManager : MonoBehaviour
         {
             if (Input.GetMouseButtonDown(0))
             {
-                if (hit.collider.gameObject.GetComponent<Unit>() != null)
+                if (hit.collider.gameObject.GetComponent<Unit>() != null && selectedUnit == null)
                 {
                     selectedUnit = hit.collider.gameObject.GetComponent<Unit>();
+                    GetTilesInRange(selectedUnit.currentPosition);
                 }
             }
             if (hit.collider.gameObject.GetComponent<Node>() != null && selectedUnit != null)
@@ -76,6 +88,49 @@ public class BattleManager : MonoBehaviour
                 node.hCost = 0;
                 node.parent = null;
             }
+        }
+        foreach(Node node in nodesInRange)
+        {
+            node.Highlight(false);
+        }
+        nodesInRange.Clear();
+    }
+
+    void GetTilesInRange(Node startNode)
+    {
+        nodesInRange.Add(startNode);
+        int range = moveRange;              
+
+        while(range > 0)
+        {
+            List<Node> adjacentNodes = new List<Node>();
+            foreach (Node node in nodesInRange)
+            {
+
+                Collider[] hit = Physics.OverlapBox(node.transform.position, new Vector3(7, 0, 7));
+                //get reference to all adjacent nodes
+                foreach (Collider col in hit)
+                {
+                    if (col.gameObject.GetComponent<Node>() && !nodesInRange.Contains(col.gameObject.GetComponent<Node>()))
+                    {
+                        if(AStar.GetDistance(node, col.gameObject.GetComponent<Node>()) == 50)
+                        {
+                            adjacentNodes.Add(col.gameObject.GetComponent<Node>());
+                        }
+                    }
+                }
+            }
+            
+            foreach(Node node in adjacentNodes)
+            {
+                nodesInRange.Add(node);
+            }
+            range--;
+        }
+
+        foreach (Node node in nodesInRange)
+        {
+            node.Highlight();
         }
 
     }
